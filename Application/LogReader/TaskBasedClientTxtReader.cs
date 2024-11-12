@@ -6,12 +6,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 
 namespace Krankenschwester.Application.LogReader
 {
-    public class ClientTxtReader : IDisposable
+    public class TaskBasedClientTxtReader
     {
         private FileStream FileStream;
         private StreamReader StreamReader;
@@ -22,7 +23,9 @@ namespace Krankenschwester.Application.LogReader
 
         private string clientTxtPath = "";
 
-        public ClientTxtReader(AppSettings settings)
+        private CancellationTokenSource _cancellationTokenSource;
+
+        public TaskBasedClientTxtReader(AppSettings settings)
         {
             this.settings = settings;
             this.clientTxtPath = settings.Main.ClientTxtPath;
@@ -37,8 +40,8 @@ namespace Krankenschwester.Application.LogReader
 
         private void Current_Exit(object sender, ExitEventArgs e)
         {
-            TmpLogger.WriteLine("Exit in ClientTxtReader");
             Dispose();
+            TmpLogger.WriteLine("Exit in TaskBasedClientTxtReader");
         }
 
         private void clientTxtReaderUsageChanged(ClientTxtReaderUsageChanged changed)
@@ -54,16 +57,18 @@ namespace Krankenschwester.Application.LogReader
             }
         }
 
-        public void init()
+        public async void init()
         {
             Dispose();
 
-            if (clientTxtPath != "" && File.Exists(clientTxtPath) && settings.Main.UseClientTxtReader)
+            if (!string.IsNullOrEmpty(clientTxtPath) && File.Exists(clientTxtPath) && settings.Main.UseClientTxtReader)
             {
                 FileStream = new FileStream(clientTxtPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                 StreamReader = new StreamReader(FileStream, Encoding.UTF8);
 
-                while (StreamReader.ReadLine() != null) { }
+                //TmpLogger.WriteLine("Start preloading Client.txt the file!");
+                //while (StreamReader.ReadLine() != null) { }
+                //TmpLogger.WriteLine("Client.txt has been read till end. Start monitoring new lines!");
 
                 StartReading();
             }
@@ -71,26 +76,41 @@ namespace Krankenschwester.Application.LogReader
 
         public void StartReading()
         {
-            Timer = new System.Timers.Timer(1000);
+            _cancellationTokenSource = new CancellationTokenSource();
+            var token = _cancellationTokenSource.Token;
 
-            Timer.Elapsed += OnTimedEvent;
-            Timer.AutoReset = true;
-            Timer.Enabled = true;
+            _ = Task.Run(async () =>
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    await OnReadLoopAsync();
+                    await Task.Delay(500, token); // Wait 1 second between checks
+                }
+            }, token);
         }
 
-        private void OnTimedEvent(Object source, ElapsedEventArgs e)
+        private async Task OnReadLoopAsync()
         {
+            if (FileStream.Position == 0)
+            {
+                FileStream.Seek(0, SeekOrigin.End);
+            }
+
             if (FileStream.Position < FileStream.Length)
             {
                 string line;
-                while ((line = StreamReader.ReadLine()) != null)
+                while ((line = await StreamReader.ReadLineAsync()) != null)
                 {
-                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                     {
-                        //TmpLogger.WriteLine(line);
-                        logsListener.Read(line);
-                        //Messenger.Default.Send(new NewLogLineAdded(line));
-                        //NewLineAdded?.Invoke(this, new NewLineEvent(line));
+                        try
+                        {
+                            logsListener.Read(line);
+                        }
+                        catch (Exception ex)
+                        {
+                            TmpLogger.WriteLine(ex.ToString());
+                        }
                     });
                 }
             }
@@ -98,8 +118,9 @@ namespace Krankenschwester.Application.LogReader
 
         public void StopReading()
         {
-            Timer?.Stop();
-            Timer?.Dispose();
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource = null;
         }
 
         public void Dispose()

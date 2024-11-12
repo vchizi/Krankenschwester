@@ -25,7 +25,7 @@ namespace Krankenschwester
         private TrayIcon trayIcon;
 
         private AppSettings settings = AppSettings.Load();
-        private ClientTxtReader clientReader;
+        private TaskBasedClientTxtReader clientReader;
         private SettingsWindow settingsWindow;
 
         public MainWindow()
@@ -35,16 +35,23 @@ namespace Krankenschwester
             InitializeComponent();
             NoActiveWindow.SetNoActiveWindow(this);
 
-            DataContext = settings.Main;
+            try
+            {
+                DataContext = settings.Main;
 
-            ButtonsStack.Children.Add(new MainButton(settings));
+                ButtonsStack.Children.Add(new MainButton(settings));
 
-            trayIcon = new TrayIcon();
-            trayIcon.AddItem("Settings", CMenu_OpenSettings);
-            trayIcon.AddItem("Exit", CMenu_Close);
+                trayIcon = new TrayIcon();
+                trayIcon.AddItem("Settings", CMenu_OpenSettings);
+                trayIcon.AddItem("Exit", CMenu_Close);
 
-            new ProcessHandler(settings);
-            clientReader = new ClientTxtReader(settings);
+                new ProcessHandler(settings);
+                clientReader = new TaskBasedClientTxtReader(settings);
+            }
+            catch (Exception ex)
+            {
+                TmpLogger.WriteLine(ex.Message);
+            }
         }
 
         private void CMenu_OpenSettings(object? sender, EventArgs e)

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Krankenschwester.Application
 {
@@ -36,6 +37,7 @@ namespace Krankenschwester.Application
         private void Current_Exit(object sender, System.Windows.ExitEventArgs e)
         {
             process.Stop();
+            TmpLogger.WriteLine("Exit in ProcessHandler");
         }
 
         private void ZoneEntered(EnteredZone zone)

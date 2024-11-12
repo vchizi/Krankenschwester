@@ -60,9 +60,13 @@ namespace Krankenschwester.Application.LogReader
                 {
                     MouseHook.Start();
                     MouseHook.MouseAction += MouseEvent;
+
+                    TmpLogger.WriteLine(zoneName + " Zone with flasks");
                 }
                 else if (ZonesWithoutFlask.ContainsKey(zoneName) == true || RgxHideout.Matches(zoneName).Count > 0)
                 {
+                    TmpLogger.WriteLine(zoneName + " Zone without flasks");
+
                     zoneWithoutFlask = true;
                     Messenger.Default.Send(new EnteredZone(false));
                 }

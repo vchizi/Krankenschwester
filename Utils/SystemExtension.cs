@@ -5,7 +5,7 @@ namespace Krankenschwester.Utils
 {
     public static class SystemExtension
     {
-        public const int SLEEP_TIME = 25;
+        public const int SLEEP_TIME = 50;
 
         public static T Clone<T>(this T source)
         {

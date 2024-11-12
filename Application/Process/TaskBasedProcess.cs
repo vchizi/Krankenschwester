@@ -19,6 +19,7 @@ namespace Krankenschwester.Application.Process
 
         async public Task Start(ProcessUsageCondition process)
         {
+            TmpLogger.WriteLine("Stopping tasks before starting.");
             await Stop();
             alive = true;
 
