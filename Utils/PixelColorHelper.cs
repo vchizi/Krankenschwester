@@ -45,8 +45,6 @@ namespace Krankenschwester.Utils
             Graphics gr = Graphics.FromImage(image);
             gr.CopyFromScreen(0, 0, 0, 0, image.Size);
 
-            Console.WriteLine(Bits[x + (y * image.Width)]);
-
             gr.Dispose();
             image.Dispose();
             BitsHandle.Free();

@@ -5,6 +5,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Forms;
 
 namespace Krankenschwester.Utils
 {
@@ -12,9 +14,14 @@ namespace Krankenschwester.Utils
     {
         public static event EventHandler<MouseClickEvent> MouseAction = delegate { };
 
+        private static CancellationTokenSource _cts = new CancellationTokenSource();
+
         public static void Start()
         {
-            _hookID = SetHook(_proc);
+            System.Windows.Application.Current.Dispatcher.Invoke((Action)delegate
+            {
+                _hookID = SetWindowsHookEx(WH_MOUSE_LL, _proc, 0, 0);
+            });
         }
 
         public static void Stop()
@@ -25,14 +32,19 @@ namespace Krankenschwester.Utils
         private static LowLevelMouseProc _proc = HookCallback;
         private static IntPtr _hookID = IntPtr.Zero;
 
-        private static IntPtr SetHook(LowLevelMouseProc proc)
-        {
-            using (Process curProcess = Process.GetCurrentProcess())
-            using (ProcessModule curModule = curProcess.MainModule)
-            {
-                return SetWindowsHookEx(WH_MOUSE_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
-            }
-        }
+        //private static IntPtr SetHook(LowLevelMouseProc proc)
+        //{
+        //    TmpLogger.WriteLine("Is hook set?");
+        //    //using (Process curProcess = Process.GetCurrentProcess())
+        //    //using (ProcessModule curModule = curProcess.MainModule)
+        //    //{
+        //    //    return SetWindowsHookEx(WH_MOUSE_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
+        //    //}
+
+        //    var hook = SetWindowsHookEx(WH_MOUSE_LL, proc, 0, 0);
+        //    TmpLogger.WriteLine("Yes");
+        //    return hook;
+        //}
 
         private delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
 

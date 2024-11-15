@@ -83,16 +83,32 @@ namespace Krankenschwester.Presentation
             };
         }
 
-        private void AnchorColorButton_Click(object sender, RoutedEventArgs e)
+        private async void AnchorColorButton_Click(object sender, RoutedEventArgs e)
+        {
+            //MouseHook.Start();
+            //MouseHook.MouseAction += SetAnchorEvent;
+            //TmpLogger.WriteLine("Subscribed");
+
+            //if (settings.UseMagnifier() && MagnifierWindow == null) {
+            //    MagnifierWindow = new MagnifierWindow();
+            //    MagnifierWindow.Show();
+            //}
+            await Task.Run(() => InitializeAnchorClick());
+        }
+
+        public void InitializeAnchorClick()
         {
             MouseHook.Start();
-
             MouseHook.MouseAction += SetAnchorEvent;
 
-            if (settings.UseMagnifier()) {
-                MagnifierWindow = new MagnifierWindow();
-                MagnifierWindow.Show();
-            }
+            System.Windows.Application.Current.Dispatcher.Invoke((Action)delegate
+            {
+                if (settings.UseMagnifier() && MagnifierWindow == null)
+                {
+                    MagnifierWindow = new MagnifierWindow();
+                    MagnifierWindow.Show();
+                }
+            });
         }
 
         private void SetAnchorEvent(object sender, MouseClickEvent e)
@@ -102,11 +118,15 @@ namespace Krankenschwester.Presentation
             MouseHook.MouseAction -= SetAnchorEvent;
             MouseHook.Stop();
 
-            if (settings.UseMagnifier())
+            System.Windows.Application.Current.Dispatcher.Invoke((Action)delegate
             {
-                MagnifierWindow.Close();
-                MagnifierWindow = null;
-            }
+                if (settings.UseMagnifier())
+                {
+                    MagnifierWindow.Close();
+                    MagnifierWindow = null;
+                }
+            });
+           
         }
 
         private void populatePresetsList()

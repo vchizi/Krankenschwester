@@ -37,7 +37,7 @@ namespace Krankenschwester.Application.LogReader
 
         private bool zoneWithoutFlask = false;
 
-        public void Read(string line)
+        public async void Read(string line)
         {
             //MatchCollection matchesDied = RgxDied.Matches(line);
             //{
@@ -58,8 +58,7 @@ namespace Krankenschwester.Application.LogReader
                 //Logger.WriteLine("You have entered: " + zoneName + ". Zone Without Flasks: " + ZonesWithoutFlask.ContainsKey(zoneName));
                 if (ZonesWithoutFlask.ContainsKey(zoneName) == false && RgxHideout.Matches(zoneName).Count == 0 && zoneWithoutFlask == true)
                 {
-                    MouseHook.Start();
-                    MouseHook.MouseAction += MouseEvent;
+                    await Task.Run(() => InitializeMouse());
 
                     TmpLogger.WriteLine(zoneName + " Zone with flasks");
                 }
@@ -73,12 +72,19 @@ namespace Krankenschwester.Application.LogReader
             }
         }
 
+        private void InitializeMouse()
+        {
+            MouseHook.Start();
+            MouseHook.MouseAction += MouseEvent;
+        }
+
         private void MouseEvent(object sender, MouseClickEvent e)
         {
             Messenger.Default.Send(new EnteredZone(true));
 
             zoneWithoutFlask = false;
             MouseHook.MouseAction -= MouseEvent;
+            MouseHook.Stop();
         }
     }
 }

@@ -28,6 +28,8 @@ namespace Krankenschwester
 
         private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
+            HandleCrash();
+
             // Log the exception or show a message to the user
             System.Windows.Forms.MessageBox.Show($"An unhandled UI exception occurred: {e.Exception.Message}");
             TmpLogger.WriteLine($"An unhandled UI exception occurred: {e.Exception.Message}");
@@ -36,6 +38,8 @@ namespace Krankenschwester
 
         private void OnAppDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
+            HandleCrash();
+
             // Log the exception or show a message to the user
             var exception = e.ExceptionObject as Exception;
             System.Windows.Forms.MessageBox.Show($"A non-UI thread exception occurred: {exception?.Message}");
@@ -45,10 +49,18 @@ namespace Krankenschwester
 
         private void OnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
+            HandleCrash();
+
             // Log the exception or show a message to the user
             System.Windows.Forms.MessageBox.Show($"An unobserved task exception occurred: {e.Exception.Message}");
             TmpLogger.WriteLine($"An unobserved task exception occurred: {e.Exception.Message}");
             //e.SetObserved(); // Prevents the application from crashing due to unobserved task exceptions
+        }
+
+        private void HandleCrash()
+        {
+            MouseHook.Stop(); // Ensure hooks are cleaned up
+            Console.WriteLine("App crashed. Cleanup completed.");
         }
     }
 

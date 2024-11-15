@@ -35,6 +35,12 @@ namespace Krankenschwester
             InitializeComponent();
             NoActiveWindow.SetNoActiveWindow(this);
 
+            System.Windows.Application.Current.Exit += (sender, e) =>
+            {
+                MouseHook.Stop();
+                TmpLogger.WriteLine("Stopping mouse hook");
+            };
+
             try
             {
                 DataContext = settings.Main;
