@@ -35,27 +35,28 @@ namespace Krankenschwester.Application.LogReader
             //{"Azurite Mine", true},
         };
 
-        private bool zoneWithoutFlask = false;
+        private bool zoneWithoutFlask = true;
 
         public async void Read(string line)
         {
-            //MatchCollection matchesDied = RgxDied.Matches(line);
-            //{
-            //    if (matchesDied.Count > 0)
-            //    {
-            //        zoneWithoutFlask = true;
-            //        FlaskUsageHandler.Stop();
+            MatchCollection matchesDied = RgxDied.Matches(line);
+            {
+                if (matchesDied.Count > 0)
+                {
+                    zoneWithoutFlask = true;
+                    Messenger.Default.Send(new EnteredZone(false));
 
-            //        return;
-            //    }
-            //}
+                    return;
+                }
+            }
 
             MatchCollection matches = Rgx.Matches(line);
             if (matches.Count > 0)
             {
+                if (zoneWithoutFlask) Messenger.Default.Send(new EnteredZone(false));
+
                 string zoneName = matches[0].Groups["zoneName"].Value;
 
-                //Logger.WriteLine("You have entered: " + zoneName + ". Zone Without Flasks: " + ZonesWithoutFlask.ContainsKey(zoneName));
                 if (ZonesWithoutFlask.ContainsKey(zoneName) == false && RgxHideout.Matches(zoneName).Count == 0 && zoneWithoutFlask == true)
                 {
                     await Task.Run(() => InitializeMouse());

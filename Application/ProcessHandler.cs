@@ -32,6 +32,11 @@ namespace Krankenschwester.Application
             process = new TaskBasedProcess();
 
             System.Windows.Application.Current.Exit += Current_Exit;
+
+            if (activated)
+            {
+                SartProcess();
+            }
         }
 
         private void Current_Exit(object sender, System.Windows.ExitEventArgs e)

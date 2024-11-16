@@ -66,9 +66,7 @@ namespace Krankenschwester.Application.LogReader
                 FileStream = new FileStream(clientTxtPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                 StreamReader = new StreamReader(FileStream, Encoding.UTF8);
 
-                //TmpLogger.WriteLine("Start preloading Client.txt the file!");
-                //while (StreamReader.ReadLine() != null) { }
-                //TmpLogger.WriteLine("Client.txt has been read till end. Start monitoring new lines!");
+                FileStream.Seek(0, SeekOrigin.End);
 
                 StartReading();
             }
@@ -91,11 +89,6 @@ namespace Krankenschwester.Application.LogReader
 
         private async Task OnReadLoopAsync()
         {
-            if (FileStream.Position == 0)
-            {
-                FileStream.Seek(0, SeekOrigin.End);
-            }
-
             if (FileStream.Position < FileStream.Length)
             {
                 string line;

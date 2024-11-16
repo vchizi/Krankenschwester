@@ -6,6 +6,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Windows.Forms;
 
 namespace Krankenschwester.Presentation.Control
 {
@@ -18,7 +19,19 @@ namespace Krankenschwester.Presentation.Control
         private static string DeactivatedIco = "/Resources/heart-deactivated.ico";
         private static string HoveredIco = "/Resources/heart-hover.ico";
 
-        private bool Activated = false;
+        protected bool _activated = false;
+        private bool Activated
+        {
+            get => _activated;
+            set
+            {
+                if (value != _activated)
+                {
+                    _activated = value;
+                    ActivatedChanged();
+                }
+            }
+        }
         private readonly AppSettings settings;
 
         public MainButton(AppSettings settings)
@@ -27,10 +40,6 @@ namespace Krankenschwester.Presentation.Control
             this.settings = settings;
 
             Activated = settings.Main.Activated;
-
-            ControlButton.DataContext = new ButtonBackground(Activated ? ActivatedIco : DeactivatedIco);
-            ControlButton.MouseEnter += ControlButton_MouseEnter;
-            ControlButton.MouseLeave += ControlButton_MouseLeave;
 
             ControlButton.Click += ControlButton_Click;
             ControlButton.MouseRightButtonDown += ControlButton_MouseRightButtonDown;
@@ -50,8 +59,6 @@ namespace Krankenschwester.Presentation.Control
             settings.Main.Activated = Activated;
             settings.Save();
 
-            ControlButton.DataContext = new ButtonBackground(Activated ? ActivatedIco : DeactivatedIco);
-
             if (deactivated.Message != "") MessageBox.Show(deactivated.Message);
         }
 
@@ -70,36 +77,16 @@ namespace Krankenschwester.Presentation.Control
             Messenger.Default.Send(new ProcessStateChanged(Activated));
         }
 
-        private void ControlButton_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        protected void ActivatedChanged()
         {
-            ControlButton.DataContext = new ButtonBackground(Activated ? ActivatedIco : DeactivatedIco);
-        }
-
-        private void ControlButton_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            ControlButton.DataContext = new ButtonBackground(HoveredIco);
-        }
-    }
-
-    public class ButtonBackground : INotifyPropertyChanged
-    {
-        public ButtonBackground(string imageSource)
-        {
-            ImageSource = imageSource;
-        }
-
-        private string _imageSource;
-        public string ImageSource
-        {
-            get => _imageSource;
-            set
+            if (Activated)
             {
-                _imageSource = value;
-                OnPropertyChanged(nameof(ImageSource));
+                ControlButton.Foreground = System.Windows.Media.Brushes.OrangeRed;
+            }
+            else
+            {
+                ControlButton.Foreground = System.Windows.Media.Brushes.White;
             }
         }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

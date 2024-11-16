@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Krankenschwester.Presentation.Control"
              mc:Ignorable="d" 
+             xmlns:fa="http://schemas.fontawesome.io/icons/"
              d:DesignHeight="30" d:DesignWidth="30" BorderThickness="1" Foreground="LightGray" Background="#FF292929" UseLayoutRounding="True" 
              BorderBrush="#474747" FontFamily="Calibri"  RenderOptions.BitmapScalingMode="HighQuality" >
     <UserControl.Resources>
@@ -36,11 +37,7 @@
     </UserControl.Resources>
     <Grid>
         <DockPanel>
-            <Button x:Name="ControlButton" Width="28" Height="28" FontSize="25">
-                <Button.Background>
-                    <ImageBrush ImageSource="{Binding ImageSource}"/>
-                </Button.Background>
-            </Button>
+            <Button x:Name="ControlButton" Width="29" Height="29" FontSize="25" fa:Awesome.Content="Heartbeat" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" />
         </DockPanel>
     </Grid>
 </UserControl>
