@@ -55,7 +55,7 @@ namespace Krankenschwester.Application.LogReader
             {
                 if (zoneWithoutFlask) Messenger.Default.Send(new EnteredZone(false));
 
-                string zoneName = matches[0].Groups["zoneName"].Value;
+                string zoneName = matches[0].Groups["zoneName"].Value.Trim('.');
 
                 if (ZonesWithoutFlask.ContainsKey(zoneName) == false && RgxHideout.Matches(zoneName).Count == 0 && zoneWithoutFlask == true)
                 {
@@ -71,6 +71,17 @@ namespace Krankenschwester.Application.LogReader
                     Messenger.Default.Send(new EnteredZone(false));
                 }
             }
+        }
+
+        public bool ZoneFound(string line)
+        {
+            MatchCollection matches = Rgx.Matches(line);
+            if (matches.Count > 0)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private void InitializeMouse()

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
@@ -68,6 +69,9 @@ namespace Krankenschwester.Application.LogReader
 
                 FileStream.Seek(0, SeekOrigin.End);
 
+                var line = ReadFileInReverseUntilMatch();
+                logsListener.Read(line);
+
                 StartReading();
             }
         }
@@ -124,6 +128,46 @@ namespace Krankenschwester.Application.LogReader
             StreamReader?.Dispose();
             FileStream?.Close();
             FileStream?.Dispose();
+        }
+
+        private string? ReadFileInReverseUntilMatch()
+        {
+            long position = FileStream.Length - 1; // Start at the end of the file
+            StringBuilder line = new StringBuilder();
+
+            while (position >= 0)
+            {
+                FileStream.Seek(position, SeekOrigin.Begin);
+                char currentChar = (char)FileStream.ReadByte();
+
+                if (currentChar == '\n' || position == 0) // Found end of line or start of file
+                {
+                    if (position == 0 && currentChar != '\n') // Add last character of the first line
+                    {
+                        line.Insert(0, currentChar);
+                    }
+
+                    if (line.Length > 0)
+                    {
+                        string currentLine = line.ToString();
+
+                        if (logsListener.ZoneFound(currentLine))
+                        {
+                            return currentLine; // Return the line when a match is found
+                        }
+
+                        line.Clear();
+                    }
+                }
+                else
+                {
+                    line.Insert(0, currentChar); // Prepend character to build the line
+                }
+
+                position--;
+            }
+
+            return null;
         }
     }
 }
