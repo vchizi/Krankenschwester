@@ -19,7 +19,7 @@ namespace Krankenschwester.Application.LogReader
         private StreamReader StreamReader;
         private System.Timers.Timer Timer;
 
-        private LogsListener logsListener = new LogsListener();
+        private LogsListener logsListener;
         private readonly AppSettings settings;
 
         private string clientTxtPath = "";
@@ -30,6 +30,8 @@ namespace Krankenschwester.Application.LogReader
         {
             this.settings = settings;
             this.clientTxtPath = settings.Main.ClientTxtPath;
+
+            logsListener = new LogsListener(settings);
 
             Messenger.Default.Register<ClientTxtPathChanged>(this, clientTxtPathChanged, true);
             Messenger.Default.Register<ClientTxtReaderUsageChanged>(this, clientTxtReaderUsageChanged, true);

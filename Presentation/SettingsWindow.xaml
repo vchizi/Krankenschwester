@@ -20,6 +20,9 @@
         <Label Content="Clone Anchor:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,130,0,0" Width="120" Height="30"/>
         <CheckBox x:Name="CloneAnchor" IsChecked="{Binding Path=CloneAnchor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="130,136,0,0"></CheckBox>
 
+        <Label Content="Stop On Death:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,160,0,0" Width="120" Height="30"/>
+        <CheckBox x:Name="StopOnDeath" IsChecked="{Binding Path=StopOnDeath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="130,166,0,0"></CheckBox>
+
         <Button x:Name="SaveButton" Content="Save" HorizontalAlignment="Left" Margin="30,202,0,0" VerticalAlignment="Top" Width="74" Click="SaveButton_Click"/>
     </Grid>
 </Window>

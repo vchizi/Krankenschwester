@@ -18,7 +18,7 @@ namespace Krankenschwester.Application.LogReader
         private static Regex Rgx = new Regex(Pattern);
         private static Regex RgxHideout = new Regex(PatternHideout);
         private static Regex RgxDied = new Regex(PatternDied);
-
+        private readonly AppSettings settings;
         private Dictionary<string, bool> ZonesWithoutFlask = new Dictionary<string, bool>() {
             {"Lioneye's Watch", true},
             {"The Forest Encampment", true},
@@ -37,17 +37,20 @@ namespace Krankenschwester.Application.LogReader
 
         private bool zoneWithoutFlask = true;
 
+        public LogsListener(AppSettings settings)
+        {
+            this.settings = settings;
+        }
+
         public async void Read(string line)
         {
             MatchCollection matchesDied = RgxDied.Matches(line);
+            if (matchesDied.Count > 0 && settings.Main.StopOnDeath)
             {
-                if (matchesDied.Count > 0)
-                {
-                    zoneWithoutFlask = true;
-                    Messenger.Default.Send(new EnteredZone(false));
+                zoneWithoutFlask = true;
+                Messenger.Default.Send(new EnteredZone(false));
 
-                    return;
-                }
+                return;
             }
 
             MatchCollection matches = Rgx.Matches(line);

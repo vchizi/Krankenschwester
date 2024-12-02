@@ -111,6 +111,18 @@ namespace Krankenschwester
 
         }
 
+        private bool stopOnDeath = false;
+        public bool StopOnDeath
+        {
+            get => stopOnDeath;
+            set
+            {
+                stopOnDeath = value;
+                OnPropertyChanged(nameof(StopOnDeath));
+            }
+
+        }
+
         private Position position = new Position(0,0);
         public Position Position
         {
