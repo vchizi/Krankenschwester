@@ -14,7 +14,7 @@ namespace Krankenschwester.Application.LogReader
     {
         private static string Pattern = @"\]\s[#&]?(<.*\>\s)?:\s(You have entered ){1}(?<zoneName>.*).$";
         private static string PatternHideout = @"^((?!Syndicate).)* Hideout$";
-        private static string PatternDied = @"\]\s[#&]?(<.*\>\s)?:\s(.*)\shas been slain.$";
+        private static string PatternDied = @"\]\s[#&]?(<.*\>\s)?:\s(?<name>.*)\shas been slain.$";
         private static Regex Rgx = new Regex(Pattern);
         private static Regex RgxHideout = new Regex(PatternHideout);
         private static Regex RgxDied = new Regex(PatternDied);
@@ -44,9 +44,16 @@ namespace Krankenschwester.Application.LogReader
 
         public async void Read(string line)
         {
-            MatchCollection matchesDied = RgxDied.Matches(line);
-            if (matchesDied.Count > 0 && settings.Main.StopOnDeath)
+            Match match = Regex.Match(line, PatternDied);
+            if (match.Success && settings.Main.StopOnDeath)
             {
+                if (settings.GetActivePreset()?.InGameName.Trim() != match.Groups["name"].Value.Trim())
+                {
+                    return;
+                }
+
+                TmpLogger.WriteLine(match.Groups["name"].Value + " has died. Stopping processes");
+
                 zoneWithoutFlask = true;
                 Messenger.Default.Send(new EnteredZone(false));
 

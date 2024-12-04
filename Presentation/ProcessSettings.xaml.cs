@@ -280,6 +280,17 @@ namespace Krankenschwester.Presentation
             }
         }
 
+        private string inGameName = "";
+        public string InGameName
+        {
+            get => inGameName;
+            set
+            {
+                inGameName = value;
+                OnPropertyChanged(nameof(InGameName));
+            }
+        }
+
         private PixelColor? anchor;
         public PixelColor? Anchor
         {
